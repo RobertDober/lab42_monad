@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'contract_violation'
 module Lab42
   module Monad
     class Interact

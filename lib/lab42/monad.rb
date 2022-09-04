@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+require_relative 'monad/interact'
 module Lab42
   module Monad
-    VERSION = "0.1.1"
+    VERSION = "0.1.2"
     def self.interact(interactor, *args, **kwds)
       { stdin: true, stdout: true }.merge(kwds) => { stdin:, stdout: }
       Interact

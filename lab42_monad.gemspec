@@ -13,6 +13,4 @@ Gem::Specification.new do |s|
   s.license     = 'Apache-2.0'
 
   s.required_ruby_version = '>= 3.1.0'
-
-  s.add_dependency 'zeitwerk', '~> 2.6.0'
 end
