@@ -31,7 +31,7 @@ SimpleCov.start do
 end
 
 # require_relative '../lib/lab42'
-require_relative '../lib/lab42/monad'
+require_relative '../lib/lab42'
 Dir.glob('support/**/*.rb').each { |f| require_relative f }
 
 RSpec.configure do |config|

@@ -47,6 +47,97 @@ This works as follows
       - falsey  -> anything and anything is returned
 
 
+  Except the last case above the `interact` method returns
+  either `[:ok, result]` or `[:error, message]` itself
+
+This is much simpler than it seems, as some examples will show
+
+#### Examples
+
+Given an echo server
+```ruby
+    let(:content) { %w[Alpha Beta] }
+    let(:echo_server) { ->(lines) { [:stdout, lines] } }
+```
+Then interacting with the server will echo `stdin` to `stdout`
+```ruby
+    expect($stdin).to receive(:readlines).with(chomp: true).and_return(content)
+    expect($stdout).to receive(:puts).with(content)
+
+    expect(Lab42::Monad.interact(echo_server))
+      .to eq([:ok, content])
+```
+
+And we can also do this by reading `stdin` lazily
+```ruby
+    lazy_echo_server = ->(reader) { reader.to_a }
+    lazy_input = StringIO.new(content.join("\n")).each_line(chomp: true)
+
+    expect($stdin).to receive(:each_line).with(chomp: true).and_return(lazy_input)
+    expect($stdout).to receive(:puts).with(content)
+
+    Lab42::Monad.interact(echo_server, stdin: :lazy)
+```
+
+And we can also just put something to `stdout` **only**
+```ruby
+    message = %w[Hello World]
+    expect($stdin).not_to receive(:readlines)
+    expect($stdout).to receive(:puts).with(message)
+
+    greeter = -> { [:stdout, message] }
+    Lab42::Monad.interact(greeter, stdin: false)
+```
+
+And the same holds for `stdin` **only**
+```ruby
+    expect($stdin).to receive(:readlines).with(chomp: true).and_return(content)
+    expect($stdout).not_to receive(:puts)
+
+    reader = ->(lines) { lines }
+    expect(Lab42::Monad.interact(reader, stdout: false)).to eq(content)
+```
+
+And this could degenerate into a NOP (useful for some parameterized code):
+```ruby
+    doubler = ->(number) { number * 2 }
+    expect(Lab42::Monad.interact(doubler, 21, stdin: false, stdout: false)).to eq(42)
+```
+
+#### Error Handling
+
+##### If the entity does not respect the result contract
+
+Given this bad entity
+```ruby
+    let(:bad_entity) { ->(lines) { lines } }
+```
+
+Then `interact` will raise a Lab42::Monad::ContractViolation
+```ruby
+    expect($stdin).to receive(:readlines).with(chomp: true)
+
+    expect { Lab42::Monad.interact(bad_entity) }
+      .to raise_error(Lab42::Monad::ContractViolation)
+```
+
+##### If the entity wants to report some error
+
+Then we will write to `stderr` and return an `:error` tuple
+```ruby
+    error_handler = -> { [:stderr, "that was bad"] }
+
+    expect($stdin).not_to receive(:each_line)
+    expect($stdin).not_to receive(:readlines)
+    expect($stdout).not_to receive(:puts)
+
+    expect($stderr).to receive(:puts).with("that was bad")
+
+    expect(Lab42::Monad.interact(error_handler, stdin: false))
+      .to eq([:error, "that was bad"])
+
+```
+
 ## LICENSE
 
 Copyright 2022 Robert Dober robert.dober@gmail.com,

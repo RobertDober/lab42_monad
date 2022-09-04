@@ -4,12 +4,34 @@ AllCops:
   NewCops: disable
   SuggestExtensions: false
 
+# Bundler {{{
 Bundler/OrderedGems:
-  Enabled: false
+  Enabled: true
+# }}}
 
+# Metrics {{{
+Metrics/MethodLength:
+  Max: 12
+# }}}
+
+# Naming {{{
+Naming/AsciiIdentifiers:
+  Enabled: false
+# }}}
+
+# Style {{{
+Style/Documentation:
+  Enabled: false
 
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+Style/Lambda:
+  Enabled: false
+
+Style/LambdaCall:
+  Enabled: false
+
 Style/StringLiterals:
   Enabled: false
+# }}}
