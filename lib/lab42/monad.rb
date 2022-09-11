@@ -3,7 +3,7 @@
 require_relative 'monad/interact'
 module Lab42
   module Monad
-    VERSION = "0.1.2"
+    VERSION = "0.1.3"
     def self.interact(interactor, *args, **kwds)
       { stdin: true, stdout: true }.merge(kwds) => { stdin:, stdout: }
       Interact
